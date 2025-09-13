@@ -1,5 +1,6 @@
-from markovjson import MarkovWordJson, MarkovNLPJson
 from os.path import basename
+
+from markovjson import MarkovWordJson, MarkovNLPJson
 
 
 class MarkovTopic(MarkovWordJson):
@@ -33,8 +34,7 @@ class MarkovTopic(MarkovWordJson):
             tokens = self.tokenize(document, wildcards=wildcards)
         else:
             tokens = document
-        return {t: self.calc_approximate_removal_score(t,
-                                                       required_states=[topic])
+        return {t: self.calc_approximate_removal_score(t, required_states=[topic])
                 for t in tokens}
 
     def score_tokens(self, document, wildcards=True):

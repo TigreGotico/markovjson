@@ -1,6 +1,6 @@
 import math
 from collections import defaultdict
-from typing import List, Tuple, Any, Callable, Optional
+from typing import List, Tuple, Any, Callable
 
 from markovjson.mkov import MarkovJson
 from markovjson.nlp import pos_tag
@@ -71,6 +71,7 @@ class MarkovWordJson(MarkovJson):
         if self.reverse_modelling:
             return s[::-1]
         return s
+
 
 class MarkovTaggerJson(MarkovWordJson):
     """
@@ -175,7 +176,7 @@ class MarkovTaggerJson(MarkovWordJson):
         # Backpointer table: stores the previous state tuple that led to the max probability
         backpointer = defaultdict(lambda: defaultdict(lambda: None))
 
-        # This is a key change: we use `self.START_OF_SEQ` to represent the initial state context
+        # we use `self.START_OF_SEQ` to represent the initial state context
         initial_tokens = [self.START_OF_SEQ] * self.order
 
         # Initialize probabilities for the first word
@@ -319,4 +320,3 @@ class MarkovNLPJson(MarkovTaggerJson):
                  *args: Any, **kwargs: Any) -> None:
         from markovjson.nlp import pos_tag
         super().__init__(pos_tag, normalize, wildcard_postags, *args, **kwargs)
-

@@ -1,6 +1,7 @@
 import random
-from json_database import JsonStorage
 from enum import Enum
+
+from json_database import JsonStorage
 
 
 class SequenceScoringStrategy(str, Enum):
@@ -277,7 +278,7 @@ class MarkovJson:
             current_state = tuple(sequence[-self.order:])
             next_token = self.sample(current_state)
             if next_token == self.NULL_SEQ:
-                if not initial_state and retry > 0: # find a new valid path
+                if not initial_state and retry > 0:  # find a new valid path
                     return self.generate_sequence(max_len=max_len, pad=pad, retry=retry - 1)
                 continue
             sequence.append(next_token)
