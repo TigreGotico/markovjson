@@ -2,7 +2,7 @@ from markovjson import MarkovCharJson
 
 mkov = MarkovCharJson(order=3, reverse=True)
 model = "places"  # or "names"
-with open(f"datasets/{model}.txt") as f:
+with open(f"sample_datasets/{model}.txt") as f:
     for line in f.readlines():
         if not line.strip():
             continue

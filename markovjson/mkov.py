@@ -234,7 +234,10 @@ class MarkovJson:
                        self.tokenize(current_state)
             current_state = tuple(sequence[-self.order:])
 
-        possible_next = self.records[current_state]
+        possible_next = self.records.get(current_state)
+        if not possible_next:
+            return self.NULL_SEQ
+
         n = sum(possible_next.values())
 
         m = random.randint(0, n)
@@ -244,12 +247,14 @@ class MarkovJson:
             if m <= count:
                 return k
 
-    def generate_sequence(self, max_len=100, initial_state=None, pad=False):
+    def generate_sequence(self, max_len=100, initial_state=None, pad=False, retry=2):
         sequence = self.state2sequence(initial_state, pad=pad)
         for i in range(max_len):
             current_state = tuple(sequence[-self.order:])
             next_token = self.sample(current_state)
             if next_token == self.NULL_SEQ:
+                if not initial_state and retry > 0: # find a new valid path
+                    return self.generate_sequence(max_len=max_len, pad=pad, retry=retry - 1)
                 continue
             sequence.append(next_token)
             if next_token == self.END_OF_SEQ:

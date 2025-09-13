@@ -11,7 +11,7 @@ path = f"{model}_c{mkov.order}.mkovjson"
 if isfile(path):
     mkov.load(path)
 else:
-    with open(f"datasets/{model}.txt") as f:
+    with open(f"sample_datasets/{model}.txt") as f:
         for line in f.readlines():
             if not line.strip():
                 continue

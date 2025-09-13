@@ -4,7 +4,7 @@ mkov = MarkovNLPJson(order=3)
 model = "questions"
 path = f"{model}_w{mkov.order}.mkovjson"
 
-with open(f"datasets/{model}.txt") as f:
+with open(f"sample_datasets/{model}.txt") as f:
     for line in f.readlines():
         if not line.strip():
             continue
