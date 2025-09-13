@@ -295,16 +295,54 @@ class MarkovJson:
                                        required_states=None,
                                        blacklisted_states=None, max_seqs=100,
                                        *args, **kwargs):
+        """
+        Calculates a heuristic score for a token's importance within the model,
+        specifically tailored for tasks like topic or intent classification.
+
+        This score approximates how much a given token ('state') contributes to the
+        high-probability sequences within a specific context (e.g., a topic). A
+        higher score (closer to 1.0) means the token is a strong indicator for that
+        context.
+
+        The method uses several opinionated heuristics instead of a pure
+        probabilistic approach, making it effective for sparse datasets:
+
+        1.  **Biased Sampling**: It deliberately over-samples sequences containing the
+            token to ensure it can be scored, even if it's rare. This trades
+            probabilistic purity for practical relevance.
+        2.  **Max-Probability Normalization**: Probabilities are scaled relative to the
+            *most likely* sequence in the sample. This acts as a contrast enhancement,
+            focusing the score on strong, defining patterns rather than the entire
+            distribution.
+
+        Args:
+            state (str): The token (e.g., a word) to be scored.
+            sequences (list, optional): A pre-computed list of sequences to analyze.
+                                        If None, sequences will be generated.
+            required_states (list, optional): A list of tokens that MUST be present
+                                              in a sequence for it to be included
+                                              in the analysis. Used to scope the
+                                              analysis to a specific topic.
+            blacklisted_states (list, optional): A list of tokens that MUST NOT be
+                                                 present in any analyzed sequence.
+            max_seqs (int): The maximum number of sequences to sample.
+
+        Returns:
+            float: A score between 0.0 and 1.0 representing the token's
+                   heuristic importance for the given context.
+        """
         if state == self.WILDCARD_SEQ:
             return 0
         required_states = required_states or [self.END_OF_SEQ]
         blacklisted_states = blacklisted_states or [self.NULL_SEQ]
 
-        # sample sequences from the model
+        # --- Step 1: Biased Sampling ---
+        # If no sequences are provided, generate a sample set. This sampling is
+        # intentionally biased to ensure the token being scored is represented,
+        # which is crucial for sparse data where the token might otherwise be missed.
         if not sequences:
             sequences = []
-
-            # sample sequences containing the token
+            # First half of the sample starts with the state, guaranteeing its presence.
             for p in self.iterate_sequences(
                     thresh=0.01,
                     strategy=SequenceScoringStrategy.PROB_MULTIPLY,
@@ -312,8 +350,7 @@ class MarkovJson:
                 sequences.append(p)
                 if len(sequences) >= max_seqs / 2:
                     break
-
-            # sample sequences randomly
+            # Second half is sampled randomly to represent the general model.
             for p in self.iterate_sequences(
                     thresh=0.01,
                     strategy=SequenceScoringStrategy.PROB_MULTIPLY,
@@ -321,28 +358,46 @@ class MarkovJson:
                 sequences.append(p)
                 if len(sequences) >= max_seqs:
                     break
-        # filter any path that doesn't contain all required states
+
+        # --- Step 2: Filtering ---
+        # Filter the sample to match the desired context (e.g., a specific topic).
         if required_states:
             sequences = [p for p in sequences
                          if all([t in p[0] for t in required_states])]
-
-        # filter any path that contains any forbidden state
         if blacklisted_states:
             sequences = [p for p in sequences
                          if not any([t in p[0] for t in blacklisted_states])]
 
+        if not sequences:
+            return 0  # No relevant paths found in the model.
+
+        # Partition the filtered sequences into two groups.
         with_state = [p for p in sequences if state in p[0]]
-        no_state = [p for p in sequences if state not in p[0]]
 
-        if len(sequences) == 0:
-            return 0  # no paths found
+        # --- Step 3: Heuristic Scoring ---
+        # This scoring method is designed to measure relative importance.
 
-        # normalize scores
+        # Find the maximum probability in the sample. This will be our baseline (1.0)
+        # for normalization. This enhances contrast by measuring everything relative
+        # to the "strongest signal" or most prototypical example.
         max_p = max(p[1] for p in sequences)
-        all_p = sum(p[1] / max_p for p in sequences)
-        # sum up to 1
-        no_p = sum(p[1] / max_p for p in no_state) / all_p
-        yes_p = sum(p[1] / max_p for p in with_state) / all_p
-        if yes_p == 0:
+        if max_p == 0:
             return 0
-        return 1 - no_p / all_p
+
+        # Calculate the total "weight" of all sequences, normalized by the max probability.
+        # This is not a true probability sum, but a heuristic measure of the total
+        # importance of all sequences in the sample.
+        total_weight = sum(p[1] / max_p for p in sequences)
+        if total_weight == 0:
+            return 0
+
+        # Calculate the weight of only the sequences that contain the target state.
+        weight_with_state = sum(p[1] / max_p for p in with_state)
+
+        # --- Step 4: Final Score Calculation ---
+        # The score is the proportion of the total heuristic weight that is associated
+        # with the sequences containing the state.
+        # This directly answers: "Of the important patterns for this topic, how much
+        # of that importance is tied to this specific word?"
+        score = weight_with_state / total_weight
+        return score

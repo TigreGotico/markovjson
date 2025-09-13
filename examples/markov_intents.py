@@ -15,12 +15,12 @@ utt = "turn off"
 
 a = container.score_tokens(utt)
 pprint(a)
-# {'[/LABEL=hello.txt]': {'turn': 0, 'off': 0},
-# '[/LABEL=joke.txt]': {'turn': 0, 'off': 0},
-# '[/LABEL=thank.txt]': {'turn': 0, 'off': 0},
-# '[/LABEL=lights_on.txt]': {'turn': 0.98, 'off': 0},
-# '[/LABEL=lights_off.txt]': {'turn': 0.98, 'off': 1}}
+# {'[/LABEL=hello.txt]': {'off': 0.0, 'turn': 0.0},
+#  '[/LABEL=joke.txt]': {'off': 0.0, 'turn': 0.0},
+#  '[/LABEL=lights_off.txt]': {'off': 1.0, 'turn': 0.6666666666666666},
+#  '[/LABEL=lights_on.txt]': {'off': 0.0, 'turn': 0.6666666666666666},
+#  '[/LABEL=thank.txt]': {'off': 0.0, 'turn': 0.0}}
 
 pprint(container.predict_topic(utt))
-# {'[/LABEL=lights_on.txt]': 0.49,
-# '[/LABEL=lights_off.txt]': 0.99}
+# {'[/LABEL=lights_off.txt]': 0.8333333333333333,
+#  '[/LABEL=lights_on.txt]': 0.3333333333333333}
