@@ -92,6 +92,30 @@ class MarkovJson:
         sequence = self.state2sequence(initial_state, pad=pad)
         return tuple(sequence[-self.order:])
 
+    def get_state_probability(self, current_state, next_state):
+        """
+        Calculates the probability of transitioning from a current state to a next state.
+
+        Args:
+            current_state (tuple): The sequence of tokens representing the current state.
+            next_state (str): The single token representing the next state.
+
+        Returns:
+            float: The probability of the transition, or 0 if the state or transition does not exist.
+        """
+        if current_state not in self.records:
+            return 0.0
+
+        state_transitions = self.records[current_state]
+        if next_state not in state_transitions:
+            return 0.0
+
+        total_transitions = sum(state_transitions.values())
+        if total_transitions == 0:
+            return 0.0
+
+        return state_transitions[next_state] / total_transitions
+
     def state2sequence(self, initial_state, pad=False, wildcards=False):
         if initial_state is None:
             sequence = [self.START_OF_SEQ] * self.order
