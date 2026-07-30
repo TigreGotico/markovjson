@@ -2,7 +2,7 @@
 
 `MarkovTopic` turns the chain into a lightweight text classifier. It trains one
 shared model over labelled samples and scores how strongly a document's tokens
-point at each label — no separate model per class, no feature engineering.
+point at each label: no separate model per class, no feature engineering.
 
 ```python
 from markovjson.topic_modelling import MarkovTopic, MarkovNLPTopic
@@ -12,7 +12,7 @@ from markovjson.topic_modelling import MarkovTopic, MarkovNLPTopic
 
 Each training sample is wrapped in a label marker, e.g. `[/LABEL=lights_off]`, on
 both ends before being added to the chain. Classification then asks, per label, how
-much each input token drives the high-probability paths scoped to that label — the
+much each input token drives the high-probability paths scoped to that label: the
 [`calc_approximate_removal_score`](api.md#removal-scoring) heuristic. A token that
 only appears under one label scores near `1.0` there and `0.0` elsewhere.
 
@@ -35,7 +35,7 @@ clears `thresh`. Labels come back in their internal `[/LABEL=<name>]` form.
 
 ## Train from files
 
-One file per intent, one sample per line — the file's basename becomes the label
+One file per intent, one sample per line: the file's basename becomes the label
 unless you pass `topic_name`:
 
 ```python
@@ -48,7 +48,7 @@ clf.register_topic_from_file("intents/lights_off.txt", topic_name="off")
 
 ## Inspect the per-token scores
 
-`predict_topic` averages token scores; to see them individually use `score_tokens`
+`predict_topic` averages token scores. To see them individually, use `score_tokens`
 (all labels) or `score_topic` (one label):
 
 ```python
@@ -80,15 +80,12 @@ predict_topic(document, thresh=0.3, wildcards=True) -> dict[str, float]
 
 - `ignore_case` lowercases samples on registration.
 - `wildcards=True` (the default here) lets unseen input words still score against
-  the model rather than zeroing the sequence — see
+  the model rather than zeroing the sequence: see
   [advanced.md](advanced.md#wildcards-for-unseen-tokens).
 
 `MarkovNLPTopic` mixes `MarkovTopic` with `MarkovNLPJson`, so topics are learned
-over POS-tagged tokens instead of bare words — reach for it when grammar, not just
+over POS-tagged tokens instead of bare words: reach for it when grammar, not just
 vocabulary, separates your intents.
 
-## Where next
-
-- [quickstart.md](quickstart.md) — the core chain idea
-- [api.md](api.md) — `calc_approximate_removal_score` and the base chain
-- [advanced.md](advanced.md) — wildcards, ordering, scoring strategies
+---
+[← Advanced usage](advanced.md) · [Home](../README.md)

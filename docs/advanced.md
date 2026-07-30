@@ -6,7 +6,7 @@ Recipes and sharp edges once you are past the [quickstart](quickstart.md).
 
 `get_sequence_prob` and `iterate_sequences` reduce a sequence's per-step weights
 into one number. The strategy decides how. `PROB_*` variants use probabilities
-(0–1 per step); the raw variants use integer transition counts.
+(0-1 per step). The raw variants use integer transition counts.
 
 ```python
 from markovjson import MarkovWordJson
@@ -24,9 +24,9 @@ print(w.get_sequence_prob(phrase, strategy=S.MIN))             # rarest raw tran
 
 Rules of thumb:
 
-- `PROB_MULTIPLY` (default) punishes any single weak link — good for "is this whole
+- `PROB_MULTIPLY` (default) punishes any single weak link: good for "is this whole
   phrase well-formed?"
-- `PROB_AVERAGE` is forgiving of one odd step — good for fuzzy matching.
+- `PROB_AVERAGE` is forgiving of one odd step: good for fuzzy matching.
 - `MIN` / `MAX` on raw counts surface the rarest / most common single transition.
 
 ## Setting the order
@@ -45,13 +45,13 @@ for order in (1, 2):
     print(order, m.generate_string(max_len=12))
 ```
 
-Order 1 wanders; order 2 stays closer to the source spellings.
+Order 1 wanders. Order 2 stays closer to the source spellings.
 
 ## Reverse models
 
-Pass `reverse=True` to predict backwards — useful for completing the *start* of a
+Pass `reverse=True` to predict backwards: useful for completing the *start* of a
 sequence, or generating endings. The chain swaps the internal roles of the start
-and end markers; `generate_string` flips the output back to reading order for you.
+and end markers. `generate_string` flips the output back to reading order for you.
 
 ```python
 from markovjson import MarkovWordJson
@@ -112,25 +112,22 @@ m.add_string("the dog ran on the road")
 print(m.viterbi_tagger("the cat ran"))   # [(word, tag), ...]
 ```
 
-Unknown words fall back to `unknown_word_prob`; if the model has no tags at all,
+Unknown words fall back to `unknown_word_prob`. If the model has no tags at all,
 every token comes back tagged `"UNK"`.
 
 ## Gotchas
 
-- **Tuple-key round-trip.** `save` stringifies the tuple state keys; `load` rebuilds
+- **Tuple-key round-trip.** `save` stringifies the tuple state keys. `load` rebuilds
   them by slicing those strings. Tokens containing `', '` can corrupt on reload.
   Keep tokens free of that literal substring, or persist in a context where you
   control the vocabulary.
 - **Tagged tokens are single-word.** `MarkovTaggerJson` stores `"<word> [/TAG=<tag>]"`
-  and `generate_tagged_string` splits on the last space — multi-word tokens are not
+  and `generate_tagged_string` splits on the last space. Multi-word tokens are not
   supported on that path.
 - **`generate_sequence` returns markers.** The raw list includes `[/START]` /
-  `[/END]`; filter them yourself, or use a subclass's `generate_string`.
+  `[/END]`. Filter them yourself, or use a subclass's `generate_string`.
 - **`normalize` returns a list.** Even given a single string,
-  `markovjson.nlp.normalize` returns a list of documents — index `[0]` for one.
+  `markovjson.nlp.normalize` returns a list of documents: index `[0]` for one.
 
-## Where next
-
-- [quickstart.md](quickstart.md) — the core idea and first calls
-- [api.md](api.md) — full signatures and return shapes
-- [topic_modelling.md](topic_modelling.md) — intent classification on the chain
+---
+[← API reference](api.md) · [Home](../README.md) · [Topic and intent modelling →](topic_modelling.md)
