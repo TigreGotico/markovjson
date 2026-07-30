@@ -22,13 +22,13 @@ MarkovJson(order=1, reverse=False,
            strategy=SequenceScoringStrategy.PROB_MULTIPLY)
 ```
 
-The base chain. Tokenizes on whitespace by default; subclasses override
+The base chain. It tokenizes on whitespace by default. Subclasses override
 `tokenize`.
 
-- `order` — number of previous tokens that make up a state.
-- `reverse` — train a reverse chain (predict the start from the end). Swaps the
+- `order`: number of previous tokens that make up a state.
+- `reverse`: train a reverse chain (predict the start from the end). Swaps the
   internal meaning of the `[/START]` and `[/END]` markers.
-- `strategy` — default `SequenceScoringStrategy` used by `iterate_sequences` and
+- `strategy`: default `SequenceScoringStrategy` used by `iterate_sequences` and
   `__iter__`.
 
 ### Training
@@ -63,9 +63,9 @@ generate_sequence(max_len=100, initial_state=None, pad=False, retry=2) -> list[s
 
 `sample` draws one next token weighted by transition counts, returning the
 `[/NULL]` marker if the state is a dead end. `generate_sequence` repeatedly samples
-until it hits the end marker or `max_len`; if it dead-ends with no `initial_state`
+until it hits the end marker or `max_len`. If it dead-ends with no `initial_state`,
 it restarts a fresh path up to `retry` times. The returned list still contains the
-`[/START]` / `[/END]` markers — subclasses' `generate_string` strips them.
+`[/START]` / `[/END]` markers: subclasses' `generate_string` strips them.
 
 ### Scoring
 
@@ -79,8 +79,8 @@ get_sequence_prob(sequence,
 
 `get_state_probability` is one transition's `count / total`. `get_transition_weights`
 returns `(raw_counts, probabilities)` for every step in a sequence.
-`get_sequence_prob` reduces those into a single number per the chosen strategy;
-it returns `0` for an impossible sequence.
+`get_sequence_prob` reduces those into a single number per the chosen strategy.
+It returns `0` for an impossible sequence.
 
 ```python
 from markovjson import MarkovWordJson
@@ -99,7 +99,7 @@ __iter__()   # iterate_sequences from the start state
 ```
 
 Yields `(sequence, score)` pairs for complete paths whose score clears `thresh`.
-`max_depth` bounds the recursion; `max_len` bounds path length.
+`max_depth` bounds the recursion. `max_len` bounds path length.
 
 ### State helpers
 
@@ -138,7 +138,7 @@ behind [topic_modelling.md](topic_modelling.md).
 ### `SequenceScoringStrategy`
 
 A `str` `Enum` of reducers for `get_sequence_prob`. Raw-count variants
-(`MAX`, `MIN`, `SUM`, `MULTIPLY`, `AVERAGE`) operate on integer transition counts;
+(`MAX`, `MIN`, `SUM`, `MULTIPLY`, `AVERAGE`) operate on integer transition counts.
 `PROB_*` variants operate on per-step probabilities:
 
 ```python
@@ -185,14 +185,14 @@ generate_string(*args, **kwargs) -> str   # joins tokens with " "
 ## `MarkovNLPJson(MarkovWordJson)`
 
 POS-tagged chain. Tokens are `word [/TAG=POS]` strings produced by NLTK's
-`pos_tag`; the model also tracks per-tag emission counts so it can tag new text.
+`pos_tag`. The model also tracks per-tag emission counts so it can tag new text.
 
 ```python
 MarkovNLPJson(normalize=False, wildcard_postags=None, *args, **kwargs)
 ```
 
-- `normalize` — lemmatize/clean text (via `markovjson.nlp.normalize`) before tagging.
-- `wildcard_postags` — list of POS tags to treat as wildcards.
+- `normalize`: lemmatize/clean text (via `markovjson.nlp.normalize`) before tagging.
+- `wildcard_postags`: list of POS tags to treat as wildcards.
 
 ```python
 viterbi_tagger(sentence, unknown_word_prob=1e-10) -> list[tuple[str, str]]
@@ -218,12 +218,9 @@ pos_tag(sentence) -> list[tuple[str, str]]
 ```
 
 `normalize` strips special characters, lowercases, and lemmatizes (WordNet by
-default) — it always returns a *list* of cleaned documents, even for a single
+default): it always returns a *list* of cleaned documents, even for a single
 string input. `pos_tag` wraps NLTK tokenize + tag and self-downloads the required
 corpora on first use.
 
-## Where next
-
-- [quickstart.md](quickstart.md) — install and the core idea
-- [advanced.md](advanced.md) — strategies, reverse models, wildcards, gotchas
-- [topic_modelling.md](topic_modelling.md) — `MarkovTopic` for intent classification
+---
+[← Quickstart](quickstart.md) · [Home](../README.md) · [Advanced usage →](advanced.md)

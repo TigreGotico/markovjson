@@ -1,8 +1,8 @@
-# Quickstart — markovjson in five minutes
+# Quickstart: markovjson in five minutes
 
 `markovjson` builds order-N Markov chains over tokens and persists them as plain
-JSON. You pick how text becomes tokens — characters, words, or POS-tagged words —
-and the same chain machinery generates new sequences, scores existing ones, and
+JSON. You pick how text becomes tokens: characters, words, or POS-tagged words.
+The same chain machinery generates new sequences, scores existing ones, and
 saves to disk.
 
 ## 1. Install
@@ -18,8 +18,8 @@ lemmatization). NLTK corpora (`punkt`, `averaged_perceptron_tagger`, `wordnet`,
 ## 2. The one idea
 
 A model keeps a table of *states* → *next-token counts*. A state is a tuple of the
-last `order` tokens. Training just walks your text and increments those counts;
-generation walks the table back the other way, sampling the next token by weight.
+last `order` tokens. Training walks your text and increments those counts.
+Generation walks the table back the other way, sampling the next token by weight.
 
 Every model is a `MarkovJson` underneath. The subclass you choose only decides how
 a string splits into tokens and how a sequence joins back into a string:
@@ -41,7 +41,7 @@ m = MarkovCharJson(order=2)
 for name in ["alice", "alma", "alva", "alan"]:
     m.add_string(name)
 
-print(m.generate_string(max_len=10))   # e.g. "alan" — a plausible new name
+print(m.generate_string(max_len=10))   # e.g. "alan": a plausible new name
 ```
 
 `add_string` tokenizes and trains. `generate_string` samples a fresh sequence and
@@ -83,8 +83,5 @@ print(reloaded.records)
 `save` writes the order, the sequence markers, and the transition table. `load`
 returns `self`, so you can chain it onto a constructor as above.
 
-## Where next
-
-- [api.md](api.md) — every public class, method, kwarg, and return shape
-- [advanced.md](advanced.md) — scoring strategies, reverse models, wildcards, gotchas
-- [topic_modelling.md](topic_modelling.md) — intent/topic classification on top of the chain
+---
+[Home](../README.md) · [API reference →](api.md)
